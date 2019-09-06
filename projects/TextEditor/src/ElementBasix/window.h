@@ -11,6 +11,7 @@ class Window {
 private:
 int w;//window width
 int h;//window height
+int cols = 3;//keeps track of the cursors current column
 int index = 1;//keeps track of what row the user is on
 char line;//initial blank var for welcome message
 char* greeting;//Keep getting seg fault
@@ -72,7 +73,7 @@ void update(){
 		helloThere();  //adds greeting to window
 		line = getch(); //once a char is detected
 		helloThere("                ");//the greeting is "deleted" simply overwritten
-		mvgetch(index, 3);//places curser to the top left
+		mvgetch(index, cols);//places curser to the top left
 	}
 }
 void setTime(){
@@ -88,26 +89,27 @@ void setTime(){
 
 void typing(char nxt){
 	curs_set(TRUE);//displays the cursor
-	while(nxt != '\n') {//while not a new line
-		if(nxt == '0') {//exit case for testing
+	while(nxt != '\n') { //while not a new line
+		nxt = getch();
+		cols++;
+		if(nxt == '0') { //exit case for testing
 			endwin();
 			exit(1);
 		}
-		if(nxt == '\0') {//if the char is blank grab a new char from user
-			nxt = getch();
-			addch(nxt);//display and slider cursor over
+		if(nxt == char(127)) { //case for handling backspace key
+			mvdelch(index, cols - 2);
+			cols -= 2;
 		}
 		else{
-			nxt = '\0'; //if the char is not blank make it blank
-			nxt = getch();//grab from user
-			addch(nxt);//display and slide over cursor
+			addch(nxt); //display and slide over cursor
 		}
 	}
-	setTime();//update the time after every new line
-	index++;//update index for row
-	mvgetch(index, 3);//move cursor to new row
-	nxt = '\0';//make new line break an empty char
-	typing(nxt);//continue typing
+	setTime(); //update the time after every new line
+	index++; //update index for row
+	cols = 3; //set column back to far left
+	mvgetch(index, cols); //move cursor to new row
+	nxt = '\0'; //make new line break an empty char
+	typing(nxt); //continue typing
 }
 };
 #endif
