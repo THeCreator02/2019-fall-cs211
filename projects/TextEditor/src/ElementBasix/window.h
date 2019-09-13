@@ -5,6 +5,12 @@
 #include <panel.h>
 #include <string>
 #include <time.h>
+#include <vector>
+#define BACKSPACE char(127)
+#define UP char(141)
+#define DOWN char(145)
+#define LEFT char(115)
+#define RIGHT char(116)
 using namespace std;
 
 class Window {
@@ -25,6 +31,7 @@ char* convert(string message, char* name){
 	holder = NULL;
 	return name;
 }
+
 public:
 WINDOW* main_window = nullptr;
 Window(){
@@ -34,17 +41,14 @@ Window(){
 	noecho();//turn off keyboard echo
 	keypad(main_window, TRUE);//Turn on keyboard input
 	curs_set(FALSE);//Hide cursor
-	cbreak();//still have no idea what cbreak does.
+	cbreak();//stops line buffering.
+	scrollok(main_window, TRUE); //allows for scrolling after last line
+	update();//logic behind the disappearing welcome message
 	setBorder();//adds indexs and top border to window
 	setTime();//displays current time in right hand bottom corner
-	update();//logic behind the disappearing welcome message
 }
 
-void setBorder(){
-	// Adds a border at the top of the screen;
-	for(int i = 0; i < w; i++) {
-		mvaddch(0, i, '#');
-	}
+void setBorder(int i = 0){
 	//adds line numbers
 	for(int i = 0; i < h; i++) {
 		char num[3];
@@ -54,27 +58,21 @@ void setBorder(){
 		mvaddstr(i + 1, 0, in);
 	}
 }
-
+void update(){
+	if(line == '\0') {
+		helloThere();  //adds greeting to window
+		mvgetch(0, 0);
+		clrtobot();
+		line = getch(); //once a char is detected
+	}
+}
 void helloThere(string greet = "Welcome to Basix"){
 	int y = h / 2; //Aligns the greeting to the center of the screen
 	y -= 1;
 	int x = w / 2;  //Aligns the greeting to the center of the screen
-	x -= 15;
-	if(greet == "                ") {
-		convert(greet, greeting);
-		mvaddstr(y, x, greeting);//Deletes the greeting, still trying to get char off the screen
-	}
+	x -= 10;
 	greeting = convert(greet, greeting);
 	mvaddstr(y, x, greeting);  //Adds greeting to the middle of the screen
-}
-
-void update(){
-	if(line == '\0') {
-		helloThere();  //adds greeting to window
-		line = getch(); //once a char is detected
-		helloThere("                ");//the greeting is "deleted" simply overwritten
-		mvgetch(index, cols);//places curser to the top left
-	}
 }
 void setTime(){
 	time_t rawtime; //gives time in a struct form
@@ -87,7 +85,18 @@ void setTime(){
 	mvaddstr(h - 2, w - 30, tiempo);//adds time to bottom right corner
 }
 
+void reDraw(){
+	clear();
+	//main_window = initscr();//Initializes Window
+	//resize_term(0, 0);
+	getmaxyx(main_window, h, w);//resize WINDOW
+	resize_term(h + 1, w + 1);
+	scrollok(main_window, TRUE); //allows for scrolling after last line
+	setBorder();//adds indexs and top border to window
+}
+
 void typing(char nxt){
+	mvgetch(index, cols); //places curser to the top left
 	curs_set(TRUE);//displays the cursor
 	while(nxt != '\n') { //while not a new line
 		nxt = getch();
@@ -96,7 +105,7 @@ void typing(char nxt){
 			endwin();
 			exit(1);
 		}
-		if(nxt == char(127)) { //case for handling backspace key
+		if(nxt == BACKSPACE) { //case for handling backspace key
 			mvdelch(index, cols - 2);
 			cols -= 2;
 		}
@@ -104,12 +113,14 @@ void typing(char nxt){
 			addch(nxt); //display and slide over cursor
 		}
 	}
-	setTime(); //update the time after every new line
+
+	reDraw();
 	index++; //update index for row
 	cols = 3; //set column back to far left
 	mvgetch(index, cols); //move cursor to new row
 	nxt = '\0'; //make new line break an empty char
 	typing(nxt); //continue typing
 }
+
 };
 #endif
