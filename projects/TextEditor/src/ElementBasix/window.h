@@ -5,12 +5,10 @@
 #include <panel.h>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
-#define BACKSPACE char(127)
-#define UP char(141)
-#define DOWN char(145)
-#define LEFT char(115)
-#define RIGHT char(116)
+#define BACKSPACE 127
+
 using namespace std;
 
 class Window {
@@ -20,6 +18,7 @@ int cols = 4;//keeps track of the cursors current column
 int index = 0;//keeps track of what row the user is on
 char line;//initial blank var for welcome message
 char* str;//Keep getting seg fault
+char* nums;
 WINDOW* main_window = nullptr;
 
 //Helpful function to convert strings into char* arrays
@@ -30,6 +29,7 @@ char* convert(string message, char* name){
 	holder = NULL;
 	return name;
 }
+
 public:
 
 Window(WINDOW* main, int height, int width){
@@ -38,18 +38,17 @@ Window(WINDOW* main, int height, int width){
 	w = width;
 }
 
-void setBorder(int i = 0){
+void setBorder(int i){
 	//adds line numbers
-	if(i >= h) {
-		h++;
-	}
-	for(; i < h; i++) {
+	while(i < h) {
 		char num[3];
 		int j = i + 1;
 		string id = to_string(j);
 		str = convert(id, str);
 		mvaddstr(i, 0, str);
+		i++;
 	}
+
 }
 
 void openingMessage(){
@@ -57,7 +56,7 @@ void openingMessage(){
 		helloThere();  //adds greeting to window
 		mvgetch(0, 0);
 		clrtobot();
-		line = getch(); //once a char is detected
+		usleep(10);
 	}
 }
 
@@ -71,25 +70,46 @@ void helloThere(){
 	mvaddstr(y, x, str);  //Adds greeting to the middle of the screen
 }
 
-
-void typing(char nxt){
+void typing(int nxt){
+	setBorder(index);
 	mvgetch(index, cols); //places curser to the top left
 	curs_set(TRUE);//displays the cursor
-	while(nxt != '\n') { //while not a new line
-		nxt = getch();
-		cols++;
-		if(nxt == BACKSPACE) { //case for handling backspace key
-			mvdelch(index, cols - 2);
-			cols -= 2;
+	while((nxt = getch()) != '\n') { //while not a new line
+		switch(nxt) {
+		case BACKSPACE: {
+			mvdelch(index, cols - 1);
+			cols--;
+			break;
 		}
-		else{
-			addch(nxt); //display and slide over cursor
+		case KEY_UP: {
+			mvgetch(index - 1, cols);
+			index--;
+			break;
+		}
+		case KEY_DOWN: {
+			mvgetch(index + 1, cols);
+			index++;
+			break;
+		}
+		case KEY_LEFT: {
+			mvgetch(index, cols - 1);
+			cols--;
+			break;
+		}
+		case KEY_RIGHT: {
+			mvgetch(index, cols + 1);
+			cols++;
+			break;
+		}
+		default: {
+			printw("%c", nxt);
+			cols++;
+			break;
+		}
 		}
 	}
 	index++; //update index for row
-	setBorder(index);
 	cols = 4; //set column back to far left
-	//mvgetch(index, cols); //move cursor to new row
 	nxt = '\0'; //make new line break an empty char
 	typing(nxt); //continue typing
 }

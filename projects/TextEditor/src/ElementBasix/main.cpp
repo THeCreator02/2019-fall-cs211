@@ -12,23 +12,22 @@ using namespace std;
 int main(/*int argc, char* argv[]*/){  //argc is the arguement count, argv is the arguement var
 	int w;//window width
 	int h;//window height
-	char input;
+	int input;
+
 	WINDOW* main_window;
 	main_window = initscr();//Initializes Window
 	getmaxyx(main_window, h, w);//resize WINDOW
 	resize_term(h - 1, w - 1);
+
 	Window wd(main_window, h, w);
+
 	noecho();//turn off keyboard echo
 	keypad(main_window, TRUE);//Turn on keyboard input
 	curs_set(FALSE);//Hide cursor
 	cbreak();//stops line buffering.
 	scrollok(main_window, TRUE); //allows for scrolling after last line
-
 	wd.openingMessage();//logic behind the disappearing welcome message
-	wd.setBorder();//adds indexs and top border to window
-	//Window wd;//creates window
 	wd.typing(input);  //logic behind typing on screen
 	endwin();
-	cout << "The End" << endl;
 	return 0;
 }
