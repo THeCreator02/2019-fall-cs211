@@ -5,7 +5,6 @@
 #include <panel.h>
 #include <string>
 #include <vector>
-#include <unistd.h>
 
 #define BACKSPACE 127
 
@@ -56,7 +55,6 @@ void openingMessage(){
 		helloThere();  //adds greeting to window
 		mvgetch(0, 0);
 		clrtobot();
-		usleep(10);
 	}
 }
 
