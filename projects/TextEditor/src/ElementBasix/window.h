@@ -5,11 +5,60 @@
 #include <panel.h>
 #include <string>
 #include <vector>
-
+#include <fstream>
 #define BACKSPACE 127
 
 using namespace std;
+ofstream input;
+class List {
+private:
+vector <char> data;
+List* next;
+void saving(){
+	for(int i = 0; i < data.size(); i++) {
+		input << data[i];
+	}
+}
+List *head, *tail;
+public:
+List()
+{
+	head = NULL;
+	tail = NULL;
+}
+void push(vector<char> value)
+{
+	List *temp = new List;
+	temp->data = value;
+	temp->next = NULL;
+	if(head == NULL)
+	{
+		head = temp;
+		tail = temp;
+		temp = NULL;
+	}
+	else
+	{
+		tail->next = temp;
+		tail = temp;
+	}
+}
 
+void save()
+{
+	List *temp = new List;
+	temp = head;
+
+	input.open("/Users/TheCreation/Desktop/CS211/projects/TextEditor/src/ElementBasix/test.txt");
+	while(temp != NULL)
+	{
+		temp->saving();
+		temp = temp->next;
+		input << '\n';
+	}
+	input.close();
+}
+};
 class Window {
 private:
 int h, w;
@@ -18,6 +67,7 @@ int index = 0;//keeps track of what row the user is on
 char line;//initial blank var for welcome message
 char* str;//Keep getting seg fault
 char* nums;
+List text;
 WINDOW* main_window = nullptr;
 
 //Helpful function to convert strings into char* arrays
@@ -69,6 +119,7 @@ void helloThere(){
 }
 
 void typing(int nxt){
+	vector<char> line;
 	setBorder(index);
 	mvgetch(index, cols); //places curser to the top left
 	curs_set(TRUE);//displays the cursor
@@ -76,14 +127,15 @@ void typing(int nxt){
 		switch(nxt) {
 		case BACKSPACE: {
 			mvdelch(index, cols - 1);
+			line.erase(line.end() - 1);
 			cols--;
 			break;
 		}
-		case KEY_UP: {
-			mvgetch(index - 1, cols);
-			index--;
-			break;
-		}
+		// case KEY_UP: {
+		// 	mvgetch(index - 1, cols);
+		// 	index--;
+		// 	break;
+		// }
 		case KEY_DOWN: {
 			mvgetch(index + 1, cols);
 			index++;
@@ -99,13 +151,21 @@ void typing(int nxt){
 			cols++;
 			break;
 		}
+		case KEY_UP: {
+			text.push(line);
+			text.save();
+			endwin();
+			break;
+		}
 		default: {
 			printw("%c", nxt);
+			line.push_back(nxt);
 			cols++;
 			break;
 		}
 		}
 	}
+	text.push(line);
 	index++; //update index for row
 	cols = 4; //set column back to far left
 	nxt = '\0'; //make new line break an empty char
@@ -113,4 +173,5 @@ void typing(int nxt){
 }
 
 };
+
 #endif

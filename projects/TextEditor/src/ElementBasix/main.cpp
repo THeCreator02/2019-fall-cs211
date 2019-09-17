@@ -6,11 +6,11 @@
 
 using namespace std;
 
+
 int main(/*int argc, char* argv[]*/){  //argc is the arguement count, argv is the arguement var
 	int w;//window width
 	int h;//window height
 	int input;
-
 	WINDOW* main_window;
 	main_window = initscr();//Initializes Window
 	getmaxyx(main_window, h, w);//resize WINDOW
@@ -25,6 +25,7 @@ int main(/*int argc, char* argv[]*/){  //argc is the arguement count, argv is th
 	scrollok(main_window, TRUE); //allows for scrolling after last line
 	wd.openingMessage();//logic behind the disappearing welcome message
 	wd.typing(input);  //logic behind typing on screen
+
 	endwin();
 	return 0;
 }
