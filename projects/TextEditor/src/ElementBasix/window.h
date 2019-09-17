@@ -36,6 +36,7 @@ Window(WINDOW* main, int height, int width){
 	main_window = main;
 	h = height;
 	w = width;
+	List test;
 }
 
 void setBorder(int i){
@@ -56,7 +57,7 @@ void openingMessage(){
 		helloThere();  //adds greeting to window
 		mvgetch(0, 0);
 		clrtobot();
-		usleep(10);
+		//usleep(10);
 	}
 }
 
@@ -103,6 +104,7 @@ void typing(int nxt){
 		}
 		default: {
 			printw("%c", nxt);
+			line.push_back(nxt);
 			cols++;
 			break;
 		}
@@ -114,5 +116,55 @@ void typing(int nxt){
 	typing(nxt); //continue typing
 }
 
+};
+struct Node {
+	vector <char> data;
+	Node* next;
+	void print(){
+		for(int i = 0; i < data.size(); i++) {
+			cout << data[i];
+		}
+	}
+};
+
+class List {
+private:
+Node *head, *tail;
+public:
+List()
+{
+	head = NULL;
+	tail = NULL;
+}
+void push(vector<char> value)
+{
+	Node *temp = new Node;
+	temp->data = value;
+	temp->next = NULL;
+	if(head == NULL)
+	{
+		head = temp;
+		tail = temp;
+		temp = NULL;
+	}
+	else
+	{
+		tail->next = temp;
+		tail = temp;
+	}
+}
+
+void display()
+{
+	Node *temp = new Node;
+	temp = head;
+	while(temp != NULL)
+	{
+		temp->print();
+		cout << "\n";
+		temp = temp->next;
+	}
+	//delete temp;
+}
 };
 #endif
