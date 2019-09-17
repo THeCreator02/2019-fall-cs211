@@ -3,9 +3,6 @@
    Created On: Fri, Aug 30, 2019 @ 10:52:35 AM
  */
 #include "window.h"
-#include <vector>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
