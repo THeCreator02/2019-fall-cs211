@@ -4,72 +4,25 @@
 #include <curses.h>
 #include <panel.h>
 #include <string>
+#include <iostream>
 #include <vector>
 #include <fstream>
 #define BACKSPACE 127
 
 using namespace std;
 ofstream input;
-class List {
-private:
-vector <char> data;
-List* next;
-void saving(){
-	for(int i = 0; i < data.size(); i++) {
-		input << data[i];
-	}
-}
-List *head, *tail;
-public:
-List()
-{
-	head = NULL;
-	tail = NULL;
-}
-void push(vector<char> value)
-{
-	List *temp = new List;
-	temp->data = value;
-	temp->next = NULL;
-	if(head == NULL)
-	{
-		head = temp;
-		tail = temp;
-		temp = NULL;
-	}
-	else
-	{
-		tail->next = temp;
-		tail = temp;
-	}
-}
+ifstream ouput;
 
-void save()
-{
-	List *temp = new List;
-	temp = head;
-
-	input.open("/Users/TheCreation/Desktop/CS211/projects/TextEditor/src/ElementBasix/test.txt");
-	while(temp != NULL)
-	{
-		temp->saving();
-		temp = temp->next;
-		input << '\n';
-	}
-	input.close();
-}
-};
 class Window {
 private:
 int h, w;
+vector<vector<char> > text;
 int cols = 4;//keeps track of the cursors current column
 int index = 0;//keeps track of what row the user is on
-char line;//initial blank var for welcome message
-char* str;//Keep getting seg fault
+char line; //initial blank var for welcome message
+char* str; //Keep getting seg fault
 char* nums;
-List text;
 WINDOW* main_window = nullptr;
-
 //Helpful function to convert strings into char* arrays
 char* convert(string message, char* name){
 	char* holder = new char[message.size() + 1];
@@ -80,7 +33,6 @@ char* convert(string message, char* name){
 }
 
 public:
-
 Window(WINDOW* main, int height, int width){
 	main_window = main;
 	h = height;
@@ -97,7 +49,6 @@ void setBorder(int i){
 		mvaddstr(i, 0, str);
 		i++;
 	}
-
 }
 
 void openingMessage(){
@@ -152,9 +103,20 @@ void typing(int nxt){
 			break;
 		}
 		case KEY_UP: {
-			text.push(line);
-			text.save();
+			text.push_back(line);
 			endwin();
+			string fileName;
+			cout << "What do you wish to call the saved file?";
+			getline(cin, fileName);
+			fileName = "./" + fileName;
+			input.open(fileName);
+			for(int i = 0; i < text.size(); i++) {
+				for(int j = 0; j < text[i].size(); j++) {
+					text[i].size();
+					input << text[i][j];
+				}
+				input << '\n';
+			}
 			break;
 		}
 		default: {
@@ -165,7 +127,7 @@ void typing(int nxt){
 		}
 		}
 	}
-	text.push(line);
+	text.push_back(line);
 	index++; //update index for row
 	cols = 4; //set column back to far left
 	nxt = '\0'; //make new line break an empty char
